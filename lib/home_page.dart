@@ -24,6 +24,16 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
+      body: Column(
+        //List of Current Invites/group chats
+        children: [
+          invitePageButton("0001", "John Huang"),
+          invitePageButton("0002", "Jonny"),
+          invitePageButton("0003", "John C")
+        ],
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+      ),
     );
   }
 
@@ -31,4 +41,43 @@ class HomePage extends StatelessWidget {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (context) => CreateInvitePage()));
   }
+}
+
+Widget invitePageButton(String uuid, String inviteName) {
+  //uuid and inviteName are stand in vars for future database info
+  return Container(
+    child: Column(
+      children: [
+        Padding(padding: EdgeInsets.fromLTRB(30, 30, 30, 0)),
+        TextButton(
+            style: ButtonStyle(
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+              overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                (Set<MaterialState> states) {
+                  if (states.contains(MaterialState.hovered))
+                    return Colors.blue.withOpacity(0.06);
+                  if (states.contains(MaterialState.focused) ||
+                      states.contains(MaterialState.pressed))
+                    return Colors.blue.withOpacity(0.15);
+                  return null; // Defer to the widget's default.
+                },
+              ),
+            ),
+            onPressed: () {
+              //Enter invite
+            },
+            child: Align(
+                //Pull data from database later on and present it here
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  inviteName,
+                  textAlign: TextAlign.left,
+                ))),
+        Padding(padding: EdgeInsets.fromLTRB(30, 30, 30, 0)),
+      ],
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+    ),
+    decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
+  );
 }

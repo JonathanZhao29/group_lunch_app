@@ -65,12 +65,3 @@ Widget titleTextField(String baseText) {
     decoration: InputDecoration(hintText: baseText),
   );
 }
-
-
-//Text Button For Submit
-// TextButton(
-//   onPressed: () {
-//     Navigator.pop(context);
-//   },
-//   child: const Text('Send!'), //Or Send Icon Here
-// ),

@@ -1,15 +1,21 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:group_lunch_app/services/authentication_service.dart';
+import 'package:group_lunch_app/services/locator.dart';
+import 'package:group_lunch_app/services/navigation_service.dart';
+import 'package:group_lunch_app/shared/routes.dart';
 import 'create_invite_page.dart';
 
 class HomePage extends StatelessWidget {
+  final NavigationService _navService = locator<NavigationService>();
+  final AuthenticationService _authService = locator<AuthenticationService>();
+
   @override
   Widget build(BuildContext context) {
     TextButton.styleFrom(primary: Theme.of(context).colorScheme.onPrimary);
     return Scaffold(
       appBar: AppBar(
         title: const Text('App Main Page'),
-        actions: <Widget>[
+        actions: [
           IconButton(
             icon: CircleAvatar(
               backgroundColor: Colors.white,
@@ -22,6 +28,13 @@ class HomePage extends StatelessWidget {
               print('New Invite Button Pressed');
             },
           ),
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: (){
+              // _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
+              _authService.logOut();
+            }
+          )
         ],
       ),
       body: Column(

@@ -3,7 +3,6 @@ import 'package:group_lunch_app/services/authentication_service.dart';
 import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/shared/routes.dart';
-import 'create_invite_page.dart';
 
 class HomePage extends StatelessWidget {
   final NavigationService _navService = locator<NavigationService>();
@@ -29,12 +28,11 @@ class HomePage extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: (){
-              // _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
-              _authService.logOut();
-            }
-          )
+              icon: Icon(Icons.logout),
+              onPressed: () {
+                // _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
+                _authService.logOut();
+              })
         ],
       ),
       body: Column(

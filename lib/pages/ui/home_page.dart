@@ -29,12 +29,11 @@ class HomePage extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: (){
-              // _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
-              _authService.logOut();
-            }
-          )
+              icon: Icon(Icons.logout),
+              onPressed: () {
+                // _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
+                _authService.logOut();
+              })
         ],
       ),
       body: Column(

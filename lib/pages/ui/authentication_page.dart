@@ -15,6 +15,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   TextEditingController phoneController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController verifyCodeController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
 
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
@@ -45,10 +46,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             formKey: _formKey,
             phoneController: phoneController,
             passwordController: passwordController,
+            confirmPasswordController: confirmPasswordController,
             verifyCodeController: verifyCodeController,
           ),
           MaterialButton(
-            child: Text(model.authMode.toUppercaseString()),
+            child: model.busy
+                ? CircularProgressIndicator()
+                : Text(model.authMode.toUppercaseString()),
             color: Colors.amber,
             onPressed: () {
               switch (model.authMode) {
@@ -69,11 +73,20 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             },
           ),
           InkWell(
-              onTap: () {
-                model.setAuthMode(_getAuthSwitch(model.authMode));
-              },
-              child: Text(
-                  'BACK TO ${_getAuthSwitch(model.authMode).toUppercaseString()}'))
+            onTap: () {
+              model.setAuthMode(_getAuthSwitch(model.authMode));
+            },
+            child: Text(
+                'GO TO ${_getAuthSwitch(model.authMode).toUppercaseString()}'),
+          ),
+          /// For testing verification animation
+          InkWell(
+            onTap: () {
+              model.setAuthMode(AuthMode.verificationMode);
+            },
+            child: Text(
+                'GO TO VERIFICATION'),
+          ),
         ],
       ),
     );

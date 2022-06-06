@@ -6,13 +6,15 @@ class AuthenticationForm extends StatelessWidget {
       required this.phoneController,
       required this.passwordController,
       required this.verifyCodeController,
+      required this.confirmPasswordController,
       Key? key})
       : super(key: key);
 
-  GlobalKey<FormState> formKey;
-  TextEditingController phoneController;
-  TextEditingController passwordController;
-  TextEditingController verifyCodeController;
+  final GlobalKey<FormState> formKey;
+  final TextEditingController phoneController;
+  final TextEditingController passwordController;
+  final TextEditingController confirmPasswordController;
+  final TextEditingController verifyCodeController;
 
   @override
   Widget build(BuildContext context) {
@@ -21,21 +23,30 @@ class AuthenticationForm extends StatelessWidget {
       key: formKey,
       child: Column(
         children: [
-          TextFormField(
-            controller: phoneController,
+          AnimatedTextField(
+            textController: phoneController,
+            show: model.authMode != AuthMode.verificationMode,
             keyboardType: TextInputType.phone,
-            decoration: InputDecoration(hintText: 'Phone Number'),
+            hintText: 'Phone Number',
+            fromRight: false,
           ),
-          TextFormField(
-            controller: passwordController,
+          AnimatedTextField(
+            textController: passwordController,
             keyboardType: TextInputType.text,
             obscureText: true,
-            decoration: InputDecoration(hintText: 'Password'),
+            show: model.authMode != AuthMode.verificationMode,
+            hintText: 'Password',
           ),
-          TextFormField(
-            controller: verifyCodeController,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(hintText: 'Verification Code'),
+          AnimatedTextField(
+              textController: confirmPasswordController,
+              show: model.authMode == AuthMode.signUpMode,
+              hintText: 'Confirm Password'),
+          AnimatedTextField(
+            textController: verifyCodeController,
+            keyboardType: TextInputType.number,
+            show: model.authMode == AuthMode.verificationMode,
+            hintText: 'Verification Code',
+            fromRight: false,
           ),
         ],
       ),

@@ -51,8 +51,7 @@ class HomePage extends StatelessWidget {
   }
 
   void _navigateToCreateInvitePage(BuildContext context) {
-    Navigator.of(context)
-        .push(MaterialPageRoute(builder: (context) => CreateInvitePage()));
+    _navService.navigateTo(InvitePageRoute);
   }
 }
 

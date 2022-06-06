@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:group_lunch_app/create_invite_page.dart';
 import 'package:group_lunch_app/home_page.dart';
 import 'package:group_lunch_app/pages/ui/authentication_page.dart';
 
 const String AuthenticationPageRoute = "auth";
 const String HomePageRoute = "home";
+const String InvitePageRoute = "invite";
 
 Route<dynamic> routeFactory(RouteSettings settings){
   PageRoute route;
@@ -13,6 +15,9 @@ Route<dynamic> routeFactory(RouteSettings settings){
       break;
     case HomePageRoute:
       route = _getRoute(name: settings.name!, view: HomePage());
+      break;
+    case InvitePageRoute:
+      route = _getRoute(name: settings.name!, view: CreateInvitePage());
       break;
     default:
       route = MaterialPageRoute(

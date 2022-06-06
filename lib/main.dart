@@ -6,7 +6,7 @@ import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/services/authentication_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'home_page.dart';
+import 'pages/ui/home_page.dart';
 import './shared/routes.dart';
 
 void main() async {
@@ -59,18 +59,20 @@ class _AuthStreamListenerState extends State<AuthStreamListener> {
   }
 
   _listen() {
-    _subscription = widget.stream.listen((User? user) {
-      if (user == null) {
-        print("User signed out!");
-        _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
-      } else {
-        print("User signed in!");
-        if (_authService.isPhoneVerified()) {
-          _navService.navigateToAndReplaceAll(HomePageRoute);
+    _subscription = widget.stream.listen(
+      (User? user) {
+        if (user == null) {
+          print("User signed out!");
+          _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
+        } else {
+          print("User signed in!");
+          if (_authService.isPhoneVerified()) {
+            _navService.navigateToAndReplaceAll(HomePageRoute);
+          }
         }
-      }
-      _authService.updateUser();
-    },);
+        _authService.updateUser();
+      },
+    );
   }
 
   @override

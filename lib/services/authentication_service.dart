@@ -26,8 +26,9 @@ class AuthenticationService {
       }
 
       return authResult.user != null;
-    } catch (e){
-      return e.toString();
+    } on FirebaseAuthException catch (e){
+      print('signUpWithPhone error: $e');
+      return e;
     }
   }
 
@@ -46,6 +47,7 @@ class AuthenticationService {
           verificationCompleted?.call(credential);
         },
         verificationFailed: (exception) {
+          print('verifyPhoneNumber Failed: ${exception.toString()}');
           verificationFailed?.call(exception);
         },
         codeSent: (verificationId, resendToken) {
@@ -66,19 +68,20 @@ class AuthenticationService {
       updateUser();
       return true;
     } catch (e) {
-      print(e.toString());
+      print('linkPhoneCredential error: $e');
       return e;
     }
   }
 
-  Future login({required String phoneNumber, required String password}) async {
+  Future<bool> login({required String phoneNumber, required String password}) async {
     try {
       var result = await _auth.signInWithEmailAndPassword(
           email: getEmailFromPhone(phoneNumber), password: password);
       updateUser();
       return result.user != null;
     } catch (e) {
-      return e.toString();
+      print('login error: $e');
+      return false;
     }
   }
 

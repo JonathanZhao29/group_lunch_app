@@ -1,25 +1,20 @@
 part of 'widgets.dart';
 
-class AnimatedTextField extends StatefulWidget {
-  AnimatedTextField({Key? key,
-    required this.textController,
-    required this.show,
-    required this.hintText, this.keyboardType = TextInputType
-        .text, this.obscureText = false, this.fromRight = true})
+class ScaleSlideInAnimation extends StatefulWidget {
+  ScaleSlideInAnimation({Key? key,
+    required this.child,
+    required this.show, this.fromRight = true})
       : super(key: key);
 
-  final TextEditingController textController;
+  final Widget child;
   final bool show;
-  final String hintText;
-  final TextInputType keyboardType;
-  final bool obscureText;
   final bool fromRight;
 
   @override
-  State<AnimatedTextField> createState() => _AnimatedTextFieldState();
+  State<ScaleSlideInAnimation> createState() => _ScaleSlideInAnimationState();
 }
 
-class _AnimatedTextFieldState extends State<AnimatedTextField>
+class _ScaleSlideInAnimationState extends State<ScaleSlideInAnimation>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late final Animation<Offset> _offsetAnimation;
@@ -35,7 +30,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
             CurvedAnimation(parent: _controller, curve: Interval(
               0.10, 1.0, curve: Curves.elasticInOut,
             )));
-    _scaleAnimation = Tween<double>(begin: 0.0, end: 50.0).animate(
+    _scaleAnimation = Tween<double>(begin: 0.0, end: 70).animate(
       CurvedAnimation(parent: _controller, curve: Interval(
         0.0, 0.8, curve: Curves.easeInOutQuint,
       ),),
@@ -45,7 +40,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
 
 
   @override
-  void didUpdateWidget(AnimatedTextField oldWidget) {
+  void didUpdateWidget(ScaleSlideInAnimation oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.show) {
       _controller.forward();
@@ -69,6 +64,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
       return AnimatedBuilder(
       animation: _controller,
       builder: _buildAnimation,
+        child: widget.child,
     );
   }
 
@@ -78,18 +74,7 @@ class _AnimatedTextFieldState extends State<AnimatedTextField>
       margin: EdgeInsets.symmetric(vertical: _scaleAnimation.value / 10, horizontal: 5.0),
       child: SlideTransition(
         position: _offsetAnimation,
-        child: TextFormField(
-          controller: widget.textController,
-          keyboardType: widget.keyboardType,
-          obscureText: widget.obscureText,
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderSide: BorderSide(color: Colors.grey.shade500, width: 2),
-              borderRadius: BorderRadius.all(Radius.circular(5.0)),
-            ),
-            hintText: widget.hintText,
-          ),
-        ),
+        child: _scaleAnimation.value > 25 ? child : SizedBox(height: _scaleAnimation.value, width: double.infinity,),
       ),
     );
   }

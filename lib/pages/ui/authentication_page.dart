@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:group_lunch_app/pages/notifiers/auth_notifier.dart';
+import 'package:group_lunch_app/shared/utils.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/widgets.dart';
 
@@ -33,11 +34,13 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            height: 100,
-            width: 100,
-            child: Center(child: Text('LOGO')),
-            color: Colors.blue,
+          TappableTwistInAnimation(
+            child: Container(
+              width: 100,
+              height: 100,
+              child: Center(child: Text('LOGO')),
+              color: Colors.blue,
+            ),
           ),
           Padding(
               padding: EdgeInsets.symmetric(vertical: 10),
@@ -54,23 +57,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                 ? CircularProgressIndicator()
                 : Text(model.authMode.toUppercaseString()),
             color: Colors.amber,
-            onPressed: () {
-              switch (model.authMode) {
-                case AuthMode.signUpMode:
-                  model.signUp(
-                      password: passwordController.text,
-                      phoneNumber: phoneController.text);
-                  break;
-                case AuthMode.loginMode:
-                  model.login(
-                      password: passwordController.text,
-                      phoneNumber: phoneController.text);
-                  break;
-                case AuthMode.verificationMode:
-                  model.verifyCode(verifyCodeController.text);
-                  break;
-              }
-            },
+            onPressed: model.busy ? null : () => _onButtonPressed(model),
           ),
           InkWell(
             onTap: () {
@@ -79,17 +66,60 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             child: Text(
                 'GO TO ${_getAuthSwitch(model.authMode).toUppercaseString()}'),
           ),
+
           /// For testing verification animation
           InkWell(
             onTap: () {
               model.setAuthMode(AuthMode.verificationMode);
             },
-            child: Text(
-                'GO TO VERIFICATION'),
+            child: Text('GO TO VERIFICATION'),
           ),
         ],
       ),
     );
+  }
+
+  void _onButtonPressed(AuthNotifier model) async {
+    // print('phone: ${phoneController.text}\npassword: ${passwordController.text}\nconfirmPassword: ${confirmPasswordController.text}\nverificationCode: ${verifyCodeController.text}');
+    // print('validate: ${_formKey.currentState?.validate()}');
+    // return;
+    _formKey.currentState?.validate();
+    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+      bool shouldShowDialog = false;
+      String titleText = '';
+      String messageText = '';
+      switch (model.authMode) {
+        case AuthMode.signUpMode:
+          var result = await model.signUp(
+              password: passwordController.text,
+              phoneNumber: phoneController.text);
+          print('signUp: result = $result');
+          if (!(result is bool)) {
+            shouldShowDialog = true;
+            titleText = 'Sign Up';
+            messageText = result;
+          }
+          break;
+        case AuthMode.loginMode:
+          shouldShowDialog = !(await model.login(
+              password: passwordController.text,
+              phoneNumber: phoneController.text));
+          if (shouldShowDialog) {
+            titleText = 'Login';
+            messageText = 'Invalid Credentials';
+          }
+          break;
+        case AuthMode.verificationMode:
+          var result = await model.verifyCode(verifyCodeController.text);
+          if (result is String) {
+            shouldShowDialog = true;
+            titleText = 'Verification';
+            messageText = result;
+          }
+          break;
+      }
+      if (shouldShowDialog) showInfoDialog(context, titleText, messageText);
+    }
   }
 
   AuthMode _getAuthSwitch(AuthMode authMode) {

@@ -50,21 +50,31 @@ class AuthNotifier extends BaseNotifier {
         setBusy(false);
         setAuthMode(AuthMode.verificationMode);
       },
-      verificationFailed: (FirebaseAuthException exception) {
-        print(exception.toString());
-      },
     );
-
-    print("SignUp result : " + result.toString());
+    if(result is bool){
+      if(result){
+        return result;
+      } else {
+        result = 'Sign Up Failed';
+      }
+    }
+    setBusy(false);
+    if(result is FirebaseAuthException){
+      if(result.code == 'email-already-in-use'){
+        result = 'Phone Number already in use by another account.';
+      }
+    }
+    return result.toString();
   }
 
-  Future login({required String phoneNumber, required String password}) async {
+  Future<bool> login({required String phoneNumber, required String password}) async {
     setBusy(true);
+    //result is either bool or FirebaseAuthException
     var result =
         await _authService.login(phoneNumber: phoneNumber, password: password);
-    if(result is bool && result) _navService.navigateToAndReplaceAll(HomePageRoute);
-    print("Login result : " + result.toString());
+    if(result) _navService.navigateToAndReplaceAll(HomePageRoute);
     setBusy(false);
+    return result;
   }
 
   Future fetchPrefs() async {
@@ -99,11 +109,16 @@ class AuthNotifier extends BaseNotifier {
     if (verificationId == null) return false;
     var result = await _authService.linkPhoneCredential(
         verificationId: verificationId!, smsCode: smsCode);
-    print('verifyCode: $result');
     setBusy(false);
     if (result is bool && result) {
       _navService.navigateToAndReplaceAll(HomePageRoute);
     }
+    if(result is FirebaseAuthException){
+      if(result.code == 'invalid-verification-code'){
+        return 'Invalid Verification Code';
+      }
+    }
+    return 'Verification error';
   }
 
   Future navigateToHome() async {

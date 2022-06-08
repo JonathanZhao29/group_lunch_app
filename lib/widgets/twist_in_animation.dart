@@ -19,6 +19,7 @@ class _TappableTwistInAnimationState extends State<TappableTwistInAnimation> {
   double _animationValue = 0.0;
 
   void _animate() {
+    if(!this.mounted) return;
     setState(() {
       _animationValue = _animationValue < 0.5 ? 1.0 : 0.1;
     });

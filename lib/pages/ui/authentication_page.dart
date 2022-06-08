@@ -23,7 +23,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => AuthNotifier(widget.initialMode ?? AuthMode.loginMode),
+      create: (_) => AuthNotifier(widget.initialMode ?? AuthMode.welcomeMode),
       builder: (context, child) => _buildContent(context),
     );
   }
@@ -57,22 +57,15 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
                 ? CircularProgressIndicator()
                 : Text(model.authMode.toUppercaseString()),
             color: Colors.amber,
-            onPressed: model.busy ? null : () => _onButtonPressed(model),
+            onPressed: model.busy ? () => print('model busy = ${model.busy}') : () => _onButtonPressed(model),
           ),
           InkWell(
             onTap: () {
+              _formKey.currentState?.reset();
               model.setAuthMode(_getAuthSwitch(model.authMode));
             },
             child: Text(
                 'GO TO ${_getAuthSwitch(model.authMode).toUppercaseString()}'),
-          ),
-
-          /// For testing verification animation
-          InkWell(
-            onTap: () {
-              model.setAuthMode(AuthMode.verificationMode);
-            },
-            child: Text('GO TO VERIFICATION'),
           ),
         ],
       ),
@@ -83,8 +76,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
     // print('phone: ${phoneController.text}\npassword: ${passwordController.text}\nconfirmPassword: ${confirmPasswordController.text}\nverificationCode: ${verifyCodeController.text}');
     // print('validate: ${_formKey.currentState?.validate()}');
     // return;
-    _formKey.currentState?.validate();
-    if (_formKey.currentState != null && _formKey.currentState!.validate()) {
+    if (model.authMode == AuthMode.welcomeMode || _formKey.currentState != null && _formKey.currentState!.validate()) {
       bool shouldShowDialog = false;
       String titleText = '';
       String messageText = '';
@@ -117,6 +109,10 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
             messageText = result;
           }
           break;
+        case AuthMode.welcomeMode:
+          print('welcome button pressed');
+          model.setAuthMode(AuthMode.loginMode);
+          break;
       }
       if (shouldShowDialog) showInfoDialog(context, titleText, messageText);
     }
@@ -125,10 +121,12 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   AuthMode _getAuthSwitch(AuthMode authMode) {
     switch (authMode) {
       case AuthMode.signUpMode:
-        return AuthMode.loginMode;
+        return AuthMode.verificationMode;
       case AuthMode.loginMode:
         return AuthMode.signUpMode;
       case AuthMode.verificationMode:
+        return AuthMode.welcomeMode;
+      case AuthMode.welcomeMode:
         return AuthMode.loginMode;
     }
   }

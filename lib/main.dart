@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:group_lunch_app/pages/ui/loading_page.dart';
 import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/services/authentication_service.dart';
@@ -10,29 +11,51 @@ import 'pages/ui/home_page.dart';
 import './shared/routes.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  setupLocator();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
+  Future<FirebaseApp> initialize() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    var result = await Firebase.initializeApp();
+    setupLocator();
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return AuthStreamListener(
-      stream: locator<AuthenticationService>().authSubscription,
-      child: MaterialApp(
-        title: 'Group Lunch App',
-        theme: ThemeData(
-          primarySwatch: Colors.green,
-        ),
-        home: new HomePage(),
-        navigatorKey: locator<NavigationService>().navigationKey,
-        onGenerateRoute: routeFactory,
-        initialRoute: AuthenticationPageRoute,
-      ),
-    );
+    return FutureBuilder(
+        future: initialize(),
+        builder: (context, snapshot) {
+          Widget content;
+          switch (snapshot.connectionState) {
+            // case ConnectionState.none:
+            //   break;
+            // case ConnectionState.waiting:
+            //   break;
+            // case ConnectionState.active:
+            //   break;
+            case ConnectionState.done:
+              content = AuthStreamListener(
+                stream: locator<AuthenticationService>().authSubscription,
+                child: MaterialApp(
+                  title: 'Group Lunch App',
+                  theme: ThemeData(
+                    primarySwatch: Colors.green,
+                  ),
+                  navigatorKey: locator<NavigationService>().navigationKey,
+                  onGenerateRoute: routeFactory,
+                  initialRoute: LoadingPageRoute,
+                ),
+              );
+              break;
+            default:
+              content = MaterialApp(
+                home: LoadingPage(),
+              );
+          }
+          return content;
+        });
   }
 }
 

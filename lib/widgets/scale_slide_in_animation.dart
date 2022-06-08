@@ -74,7 +74,8 @@ class _ScaleSlideInAnimationState extends State<ScaleSlideInAnimation>
       margin: EdgeInsets.symmetric(vertical: _scaleAnimation.value / 10, horizontal: 5.0),
       child: SlideTransition(
         position: _offsetAnimation,
-        child: _scaleAnimation.value > 25 ? child : SizedBox(height: _scaleAnimation.value, width: double.infinity,),
+        // child: _scaleAnimation.value > 25 ? child : SizedBox(height: _scaleAnimation.value, width: double.infinity,),
+        child: child,
       ),
     );
   }

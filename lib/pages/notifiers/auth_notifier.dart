@@ -131,7 +131,7 @@ class AuthNotifier extends BaseNotifier {
   }
 }
 
-enum AuthMode { signUpMode, loginMode, verificationMode }
+enum AuthMode { signUpMode, loginMode, verificationMode, welcomeMode }
 
 extension Stringify on AuthMode {
   String toUppercaseString() {
@@ -145,6 +145,9 @@ extension Stringify on AuthMode {
         break;
       case AuthMode.verificationMode:
         val = "VERIFY";
+        break;
+      case AuthMode.welcomeMode:
+        val = "WELCOME";
         break;
     }
     return val;

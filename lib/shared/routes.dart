@@ -3,9 +3,12 @@ import 'package:group_lunch_app/pages/ui/create_invite_page.dart';
 import 'package:group_lunch_app/home_page.dart';
 import 'package:group_lunch_app/pages/ui/authentication_page.dart';
 
+import '../pages/ui/loading_page.dart';
+
 const String AuthenticationPageRoute = "auth";
 const String HomePageRoute = "home";
 const String InvitePageRoute = "invite";
+const String LoadingPageRoute = "loading";
 
 Route<dynamic> routeFactory(RouteSettings settings) {
   PageRoute route;
@@ -23,12 +26,17 @@ Route<dynamic> routeFactory(RouteSettings settings) {
     case InvitePageRoute:
       route = _getRoute(name: settings.name!, view: CreateInvitePage());
       break;
+    case LoadingPageRoute:
+      route = _getRoute(name: settings.name!, view: LoadingPage());
+      break;
     default:
       route = MaterialPageRoute(
-          builder: (_) => Scaffold(
-                  body: Center(
-                child: Text('No route defined for ${settings.name}'),
-              )));
+        builder: (_) => Scaffold(
+          body: Center(
+            child: Text('No route defined for ${settings.name}'),
+          ),
+        ),
+      );
   }
   return route;
 }

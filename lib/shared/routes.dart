@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:group_lunch_app/pages/ui/create_invite_page.dart';
-import 'package:group_lunch_app/home_page.dart';
+import 'package:group_lunch_app/pages/ui/home_page.dart';
 import 'package:group_lunch_app/pages/ui/authentication_page.dart';
 
 import '../pages/ui/loading_page.dart';

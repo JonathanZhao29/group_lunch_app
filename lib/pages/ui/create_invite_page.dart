@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:dropdown_search/dropdown_search.dart';
 
 class CreateInvitePage extends StatelessWidget {
   @override
@@ -63,5 +64,23 @@ Widget titleTextField(String baseText) {
       return null;
     },
     decoration: InputDecoration(hintText: baseText),
+  );
+}
+
+Widget dropdownSearchField() {
+  return DropdownSearch<String>.multiSelection(
+    items: [
+      "Jonathan",
+      "John Huang",
+      "John Coulter",
+      "919 919 9191",
+      "Johns group"
+    ],
+    popupProps: PopupPropsMultiSelection.menu(
+      showSelectedItems: true,
+      //disabledItemFn: (String s) => s.startsWith('I'),
+    ),
+    onChanged: print,
+    selectedItems: [],
   );
 }

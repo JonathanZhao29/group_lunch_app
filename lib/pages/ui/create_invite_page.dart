@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:group_lunch_app/shared/user_model.dart';
 
 class CreateInvitePage extends StatelessWidget {
   @override
@@ -27,14 +28,16 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
               key: _formKey,
               child: Column(
                 children: <Widget>[
-                  Text('Title:'),
-                  titleTextField('Title'),
+                  titleTextField('Add Title'),
                   //Add Text Inbetween these
                   Text('Date'),
-                  titleTextField('Date'),
+                  titleTextField('Add Date'),
                   //Add Text Inbetween these
-                  Text('Add People or Phone Numbers:'),
-                  titleTextField('Add People or Phone Numbers'),
+                  Padding(
+                    padding: EdgeInsets.all(16.0),
+                    child: Text('Add People or Phone Numbers:'),
+                  ),
+                  dropdownSearchField('Add People or Phone Numbers'),
                   ElevatedButton(
                     onPressed: () {
                       // Enters if statement = form is valid
@@ -63,24 +66,49 @@ Widget titleTextField(String baseText) {
       }
       return null;
     },
-    decoration: InputDecoration(hintText: baseText),
+    decoration: InputDecoration(
+      hintText: baseText,
+      contentPadding: EdgeInsets.all(20.0),
+    ),
   );
 }
 
-Widget dropdownSearchField() {
-  return DropdownSearch<String>.multiSelection(
-    items: [
-      "Jonathan",
-      "John Huang",
-      "John Coulter",
-      "919 919 9191",
-      "Johns group"
-    ],
-    popupProps: PopupPropsMultiSelection.menu(
-      showSelectedItems: true,
-      //disabledItemFn: (String s) => s.startsWith('I'),
+Widget dropdownSearchField(String baseText) {
+  // return DropdownSearch<String>.multiSelection(
+  //   items: [
+  //     "Jonathan",
+  //     "John Huang",
+  //     "John Coulter",
+  //     "919 919 9191",
+  //     "Johns group"
+  //   ],
+  //   popupProps: PopupPropsMultiSelection.menu(
+  //     showSelectedItems: true,
+  //     //disabledItemFn: (String s) => s.startsWith('I'),
+  //   ),
+  //   onChanged: print,
+  //   selectedItems: [],
+  // );
+
+  List<UserModel> listOfUsers = [
+    UserModel(id: "001", name: "John", phoneNumber: "9199199191"),
+    UserModel(id: "002", name: "Jonathan", phoneNumber: "1234567890")
+  ];
+
+  return DropdownSearch<UserModel>.multiSelection(
+    //popupProps: PopupPropsMultiSelection.modalBottomSheet(
+    //   showSelectedItems: true,
+    //   showSearchBox: true,
+    // ),
+    dropdownDecoratorProps: DropDownDecoratorProps(
+      dropdownSearchDecoration: InputDecoration(
+        labelText: 'Names or Phone Numbers',
+      ),
     ),
-    onChanged: print,
+    //asyncItems: (String filter) => getData(filter),
+    items: listOfUsers,
+    itemAsString: (UserModel u) => u.userAsString(),
+    onChanged: (List<UserModel?> data) => print(data),
     selectedItems: [],
   );
 }

@@ -45,7 +45,7 @@ class MyApp extends StatelessWidget {
                   ),
                   navigatorKey: locator<NavigationService>().navigationKey,
                   onGenerateRoute: routeFactory,
-                  initialRoute: LoadingPageRoute,
+                  initialRoute: HomePageRoute,
                 ),
               );
               break;

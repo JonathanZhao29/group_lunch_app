@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "464001236124",
+    "project_id": "group-lunch-app",
+    "storage_bucket": "group-lunch-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:464001236124:android:f23094c7ce9a218bf7c159",
+        "android_client_info": {
+          "package_name": "com.example.group_lunch_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "464001236124-ujerlj1t9b99jdvm2slsj0888l3fk491.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwadDc_P9GdEEH62e1ZGdsrvpirp3I1eE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "464001236124-ujerlj1t9b99jdvm2slsj0888l3fk491.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -4,16 +4,40 @@ import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/shared/routes.dart';
 
-class HomePage extends StatelessWidget {
+import '../../models/user_model.dart';
+import '../../services/firestore_service.dart';
+
+class HomePage extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final NavigationService _navService = locator<NavigationService>();
   final AuthenticationService _authService = locator<AuthenticationService>();
+  final FirestoreService _firestoreService = locator<FirestoreService>();
+
+  UserModel user = UserModel.defaultUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _firestoreService.getLoggedInUser().then(
+      (userModel) {
+        if (!mounted) return;
+        setState(() {
+          if (userModel != null) user = userModel;
+        });
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     TextButton.styleFrom(primary: Theme.of(context).colorScheme.onPrimary);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('App Main Page'),
+        title: Text('Welcome, ${user.displayName}'),
         actions: [
           IconButton(
             icon: CircleAvatar(
@@ -30,7 +54,6 @@ class HomePage extends StatelessWidget {
           IconButton(
               icon: Icon(Icons.logout),
               onPressed: () {
-                // _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
                 _authService.logOut();
               })
         ],

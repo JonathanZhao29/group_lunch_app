@@ -73,9 +73,6 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
   }
 
   void _onButtonPressed(AuthNotifier model) async {
-    // print('phone: ${phoneController.text}\npassword: ${passwordController.text}\nconfirmPassword: ${confirmPasswordController.text}\nverificationCode: ${verifyCodeController.text}');
-    // print('validate: ${_formKey.currentState?.validate()}');
-    // return;
     if (model.authMode == AuthMode.welcomeMode || _formKey.currentState != null && _formKey.currentState!.validate()) {
       bool shouldShowDialog = false;
       String titleText = '';
@@ -114,7 +111,7 @@ class _AuthenticationPageState extends State<AuthenticationPage> {
           model.setAuthMode(AuthMode.loginMode);
           break;
       }
-      if (shouldShowDialog) showInfoDialog(context, titleText, messageText);
+      if (shouldShowDialog) await showInfoDialog(context, titleText, messageText);
     }
   }
 

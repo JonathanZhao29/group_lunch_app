@@ -8,7 +8,9 @@ class AuthenticationService {
 
   Stream<User?> get authSubscription => _auth.authStateChanges();
 
-  Future signUpWithPhone({required String phoneNumber, required String password,
+  /// Returns [UserCredential] if account creation succeeds
+  /// return [FirebaseAuthException] on failure
+  Future<dynamic> signUpWithPhone({required String phoneNumber, required String password,
     Function(PhoneAuthCredential)? verificationCompleted,
     Function(FirebaseAuthException)? verificationFailed,
     Function(String, int?)? codeSent,
@@ -16,16 +18,16 @@ class AuthenticationService {
     try {
       UserCredential authResult = await _auth.createUserWithEmailAndPassword(
           email: getEmailFromPhone(phoneNumber), password: password);
-      updateUser();
+      updateUser(authResult.user);
       if (authResult.user != null) {
-        await verifyPhoneNumber(phoneNumber: phoneNumber,
+        final verifyResult = await verifyPhoneNumber(phoneNumber: phoneNumber,
             verificationFailed: verificationFailed,
             codeSent: codeSent,
             codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
-        updateUser();
+        updateUser(verifyResult is UserCredential ? verifyResult.user : _auth.currentUser);
       }
 
-      return authResult.user != null;
+      return authResult;
     } on FirebaseAuthException catch (e){
       print('signUpWithPhone error: $e');
       return e;
@@ -62,10 +64,10 @@ class AuthenticationService {
   Future linkPhoneCredential(
       {required String verificationId, required String smsCode}) async {
     try {
-      await _auth.currentUser?.linkWithCredential(PhoneAuthProvider.credential(
+      final result = await _auth.currentUser?.linkWithCredential(PhoneAuthProvider.credential(
           verificationId: verificationId, smsCode: smsCode));
       _auth.currentUser?.reload();
-      updateUser();
+      updateUser(result?.user);
       return true;
     } catch (e) {
       print('linkPhoneCredential error: $e');
@@ -77,7 +79,7 @@ class AuthenticationService {
     try {
       var result = await _auth.signInWithEmailAndPassword(
           email: getEmailFromPhone(phoneNumber), password: password);
-      updateUser();
+      updateUser(result.user);
       return result.user != null;
     } catch (e) {
       print('login error: $e');
@@ -88,12 +90,12 @@ class AuthenticationService {
   void logOut() async {
     if (_auth.currentUser != null) {
       await _auth.signOut();
-      updateUser();
+      updateUser(null);
     }
   }
 
-  void updateUser() {
-    _currentUser = _auth.currentUser;
+  void updateUser(User? user) {
+    _currentUser = user;
   }
 
   bool isPhoneVerified() {

@@ -39,6 +39,7 @@ class FirestoreService {
   /// get UserModel of logged in user
   /// and set currentUser to newly fetched user
   Future<UserModel?> getLoggedInUser() async {
+    print('getLoggedInUser currentUser = ${_authService.currentUser}');
     if(_authService.currentUser == null) return null;
     final user = await fetchUserData(_authService.currentUser!.uid);
     _currentUser = user;
@@ -48,15 +49,18 @@ class FirestoreService {
   /// get UserModel corresponding to [userId]
   Future<UserModel?> fetchUserData(String userId) async {
     final docRef = _db.collection(USER_COLLECTION_PATH).doc(userId);
-    docRef.get().then(
+    return docRef.get().then(
       (doc) {
-        final data = doc.data as Map<String, dynamic>;
+        if(!doc.exists || doc.data() == null) return null;
+        final data = doc.data() as Map<String, dynamic>;
         data.addAll({Strings.USER_ID_KEY: userId});
         return UserModel.fromMap(data);
       },
-      onError: (e, s) => print('$ERROR_HEADER fetchUserData failed: $e - $s'),
+      onError: (e, s) {
+        print('$ERROR_HEADER fetchUserData failed: $e - $s');
+        return null;
+      },
     );
-    return null;
   }
 
   /// return [True] if update is successful

@@ -3,8 +3,8 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void showInfoDialog(BuildContext context, String title, String message) {
-  showDialog(
+Future showInfoDialog(BuildContext context, String title, String message) async  {
+  await showDialog(
       context: context,
       builder: (context) {
         Widget titleWidget = Text(title,

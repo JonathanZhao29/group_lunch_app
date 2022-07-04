@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:group_lunch_app/services/firestore_service.dart';
 import 'package:group_lunch_app/shared/routes.dart';
 
 import '../../services/authentication_service.dart';
@@ -11,6 +12,7 @@ import 'base_notifier.dart';
 class AuthNotifier extends BaseNotifier {
   final AuthenticationService _authService = locator<AuthenticationService>();
   final NavigationService _navService = locator<NavigationService>();
+  final FirestoreService _firestoreService = locator<FirestoreService>();
   SharedPreferences? prefs;
 
   String? _verificationId;
@@ -51,12 +53,9 @@ class AuthNotifier extends BaseNotifier {
         setAuthMode(AuthMode.verificationMode);
       },
     );
-    if(result is bool){
-      if(result){
-        return result;
-      } else {
-        result = 'Sign Up Failed';
-      }
+    if(result is UserCredential){
+      if(result.user != null) _firestoreService.createUserData(result.user!);
+      return result.user != null ? true : 'Sign Up Failed';
     }
     setBusy(false);
     if(result is FirebaseAuthException){
@@ -72,7 +71,6 @@ class AuthNotifier extends BaseNotifier {
     //result is either bool or FirebaseAuthException
     var result =
         await _authService.login(phoneNumber: phoneNumber, password: password);
-    if(result) _navService.navigateToAndReplaceAll(HomePageRoute);
     setBusy(false);
     return result;
   }
@@ -110,8 +108,8 @@ class AuthNotifier extends BaseNotifier {
     var result = await _authService.linkPhoneCredential(
         verificationId: verificationId!, smsCode: smsCode);
     setBusy(false);
-    if (result is bool && result) {
-      _navService.navigateToAndReplaceAll(HomePageRoute);
+    if (result is bool ) {
+      return result;
     }
     if(result is FirebaseAuthException){
       if(result.code == 'invalid-verification-code'){

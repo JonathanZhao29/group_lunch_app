@@ -21,21 +21,21 @@ class UserModel extends Object {
 
   static UserModel fromMap(Map<String, dynamic> data){
     return UserModel(
-      id: data[Strings.USER_ID_KEY],
-      createdAt: DateTime.fromMillisecondsSinceEpoch((data[Strings.USER_CREATED_AT_KEY] as Timestamp).millisecondsSinceEpoch),
-      name: data[Strings.USER_NAME_KEY],
-      phoneNumber: data[Strings.USER_PHONE_NUMBER_KEY],
-      avatar: data[Strings.USER_AVATAR_KEY],
+      id: data[USER_ID_KEY],
+      createdAt: DateTime.fromMillisecondsSinceEpoch((data[USER_CREATED_AT_KEY] as Timestamp).millisecondsSinceEpoch),
+      name: data[USER_NAME_KEY],
+      phoneNumber: data[USER_PHONE_NUMBER_KEY],
+      avatar: data[USER_AVATAR_KEY],
     );
   }
 
   Map<String, dynamic> toMap(){
     return {
-      Strings.USER_ID_KEY : id,
-      Strings.USER_CREATED_AT_KEY : createdAt,
-      Strings.USER_NAME_KEY : name,
-      Strings.USER_PHONE_NUMBER_KEY : phoneNumber,
-      Strings.USER_AVATAR_KEY : avatar,
+      USER_ID_KEY : id,
+      USER_CREATED_AT_KEY : createdAt,
+      USER_NAME_KEY : name,
+      USER_PHONE_NUMBER_KEY : phoneNumber,
+      USER_AVATAR_KEY : avatar,
     };
   }
 

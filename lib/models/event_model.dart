@@ -1,5 +1,5 @@
 import 'package:group_lunch_app/shared/strings.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'user_model.dart';
 
 class EventModel {
@@ -16,6 +16,7 @@ class EventModel {
   final List<UserModel> eventDeclines;
   final List<UserModel> eventUndecided;
   final bool isEventActive;
+  final GeoPoint? eventLocation;
 
   EventModel(
       {required this.id,
@@ -24,6 +25,7 @@ class EventModel {
       this.eventTimeStart,
       this.eventTimeEnd,
       this.eventTimeDuration,
+      this.eventLocation,
       required this.eventCreationTime,
       required this.eventHost,
       required this.eventInvites,
@@ -50,16 +52,34 @@ class EventModel {
       eventTimeStart: data[EVENT_START_TIME_KEY],
       eventTimeEnd: data[EVENT_END_TIME_KEY],
       eventTimeDuration: data[EVENT_DURATION_TIME_KEY],
+        eventLocation: data[EVENT_LOCATION_KEY],
     );
+  }
+
+  /// Generates map holding all values of event
+  /// Excludes participant data
+  Map<String, dynamic> toMap() {
+    return {
+      EVENT_NAME_KEY: eventName,
+      EVENT_CREATED_AT_KEY: eventCreationTime,
+      EVENT_DESCRIPTION_KEY: eventDescription,
+      EVENT_END_TIME_KEY: eventTimeEnd,
+      EVENT_HOST_ID_KEY: eventHost.id,
+      EVENT_START_TIME_KEY: eventTimeStart,
+      EVENT_ACTIVE_KEY: isEventActive,
+      EVENT_LOCATION_KEY: eventLocation,
+    };
   }
 }
 
 enum EventResponseStatus {
-  ACCEPTED, DECLINED, TENTATIVE,
+  ACCEPTED,
+  DECLINED,
+  TENTATIVE,
 }
 
 extension Stringify on EventResponseStatus {
-  String toLowercaseString() {
+  String toKey() {
     String val;
     switch (this) {
       case EventResponseStatus.DECLINED:
@@ -75,5 +95,3 @@ extension Stringify on EventResponseStatus {
     return val;
   }
 }
-
-

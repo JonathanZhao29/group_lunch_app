@@ -11,6 +11,9 @@ import 'pages/ui/home_page.dart';
 import './shared/routes.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
+  await Firebase.initializeApp();
   runApp(MyApp());
 }
 

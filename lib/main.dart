@@ -13,15 +13,12 @@ import './shared/routes.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupLocator();
-  await Firebase.initializeApp();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   Future<FirebaseApp> initialize() async {
-    WidgetsFlutterBinding.ensureInitialized();
     var result = await Firebase.initializeApp();
-    setupLocator();
     return result;
   }
 

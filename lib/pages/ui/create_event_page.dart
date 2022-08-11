@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:group_lunch_app/shared/user_model.dart';
 import 'package:group_lunch_app/shared/event_model.dart';
+import 'package:intl/intl.dart';
+import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 
 class CreateInvitePage extends StatelessWidget {
   @override
@@ -58,11 +60,16 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
               key: _formKey,
               child: Column(
                 children: <Widget>[
+                  //Event Title
+                  Text('Event Title'),
                   titleTextField('Add Title', inputControllerList[0]),
-                  //Add Text Inbetween these
-                  Text('Date'),
-                  titleTextField('Add Date', inputControllerList[1]),
-                  //Add Text Inbetween these
+                  //Event Date
+                  Text('Event Date'),
+                  dateTextField('Add Date', inputControllerList[1]),
+
+                  //TBD: Event Location, store in GeoPoint
+                  Text('Event Location'),
+
                   Padding(
                     padding: EdgeInsets.all(16.0),
                     child: Text('Add People or Phone Numbers:'),
@@ -116,12 +123,32 @@ Widget titleTextField(String baseText, TextEditingController inputController) {
 //In The Works
 Widget dateTextField(String baseText, TextEditingController inputController) {
   //Current time used as a start time
-  var currentDay = DateTime.now();
+  var currentDay = DateTime.now().subtract(const Duration(days: 1));
   //Current time increased by 1 year used as end time
-  var lastDayAllowed = currentDay.add(const Duration(days: 365));
-  return InputDatePickerFormField(
-    firstDate: currentDay,
-    lastDate: lastDayAllowed,
+  var lastDayAllowed = DateTime(2100);
+  //Create DateTimeField
+  return DateTimeField(
+    format: DateFormat("EEEE MMM dd, ").add_jm(),
+    onShowPicker: (context, currentValue) async {
+      final date = await showDatePicker(
+          context: context,
+          firstDate: currentDay,
+          initialDate: DateTime.now(),
+          lastDate: lastDayAllowed);
+      if (date != null) {
+        final time = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+        );
+        //Return Date/Time string to inputController
+        inputController.text = DateTimeField.combine(date, time).toString();
+        return DateTimeField.combine(date, time);
+      } else {
+        //Return Date string to inputController
+        inputController.text = currentValue.toString();
+        return currentValue;
+      }
+    },
   );
 }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
-import 'package:group_lunch_app/shared/user_model.dart';
-import 'package:group_lunch_app/shared/event_model.dart';
+import 'package:group_lunch_app/models/user_model.dart';
+import 'package:group_lunch_app/models/event_model.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 

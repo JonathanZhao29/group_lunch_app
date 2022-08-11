@@ -48,6 +48,10 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
     createTextEditingControllerList(numControllers, inputControllerList);
     //User Inputs Information
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create Event'),
+        actions: [],
+      ),
       body: Stack(
         children: <Widget>[
           Form(
@@ -70,9 +74,15 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
                       if (_formKey.currentState!.validate()) {
                         //Create event with inputted information
 
+                        //Print to Console Inputted Information
+                        print("Event Title: " + inputControllerList[0].text);
+                        print("Event Date: " + inputControllerList[1].text);
+
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Sending Invite...')),
                         );
+                      } else {
+                        print("Form not valid");
                       }
                     },
                     child: const Text('Send Invite!'), //Or Send Icon
@@ -100,6 +110,18 @@ Widget titleTextField(String baseText, TextEditingController inputController) {
       hintText: baseText,
       contentPadding: EdgeInsets.all(20.0),
     ),
+  );
+}
+
+//In The Works
+Widget dateTextField(String baseText, TextEditingController inputController) {
+  //Current time used as a start time
+  var currentDay = DateTime.now();
+  //Current time increased by 1 year used as end time
+  var lastDayAllowed = currentDay.add(const Duration(days: 365));
+  return InputDatePickerFormField(
+    firstDate: currentDay,
+    lastDate: lastDayAllowed,
   );
 }
 

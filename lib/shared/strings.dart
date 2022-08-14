@@ -1,3 +1,7 @@
+// Settings Argument keys
+const String EVENT_ID_ARGUMENT_KEY = 'event_id_key';
+const String INITIAL_AUTH_MODE_ARGUMENT_KEY = 'initial_mode';
+
 // User Model
 const String USER_AVATAR_KEY = 'user_avatar';
 const String USER_CREATED_AT_KEY = 'created_at';

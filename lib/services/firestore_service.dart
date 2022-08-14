@@ -81,11 +81,14 @@ class FirestoreService {
   }
 
   /// Updates events data for specified user
-  Future<bool> updateUserEventsData(String userId, Map<String, EventResponseStatus> events) async {
-    print('FirestoreService updateUserEventsData userId = $userId | events = $events');
+  Future<bool> updateUserEventsData(
+      String userId, Map<String, EventResponseStatus> events) async {
+    print(
+        'FirestoreService updateUserEventsData userId = $userId | events = $events');
     final docRef = _db.collection(USER_COLLECTION_PATH).doc(userId);
-    final newData = events.map((key, val) => MapEntry('$USER_EVENT_ID_LIST_KEY.$key', val.toKey()));
-    await docRef.update(newData).onError((e, s){
+    final newData = events.map(
+        (key, val) => MapEntry('$USER_EVENT_ID_LIST_KEY.$key', val.toKey()));
+    await docRef.update(newData).onError((e, s) {
       print('$ERROR_HEADER updateUserEventsData failed: $e - $s');
       return false;
     });
@@ -98,50 +101,60 @@ class FirestoreService {
   Future<EventModel?> fetchCompleteEventDataById(String eventId) async {
     try {
       print('fetchCompleteEventDataById eventId = $eventId');
-      final eventDoc = await _db.collection(EVENT_COLLECTION_PATH).doc(eventId).get();
+      final eventDoc =
+          await _db.collection(EVENT_COLLECTION_PATH).doc(eventId).get();
       if (!eventDoc.exists || eventDoc.data() == null) {
-        print('$ERROR_HEADER fetchEventDataById doc.exists = ${eventDoc.exists} eventDoc = ${eventDoc.data()}');
+        print(
+            '$ERROR_HEADER fetchEventDataById doc.exists = ${eventDoc.exists} eventDoc = ${eventDoc.data()}');
         return null;
       }
-      final eventData = eventDoc.data() as Map<String, dynamic>;
-      eventData.addAll({EVENT_ID_KEY: eventId});
-      eventData[EVENT_DURATION_TIME_KEY] = (eventData[EVENT_END_TIME_KEY]
-              as Timestamp)
-          .toDate()
-          .difference((eventData[EVENT_END_TIME_KEY] as Timestamp).toDate());
-      final participantMap = eventData[EVENT_PARTICIPANTS_KEY];
-      final userList = await Future.wait([
-        fetchUserData(eventData[EVENT_HOST_ID_KEY])
-      ]
-        ..addAll((participantMap[EventResponseStatus.ACCEPTED.toKey()] as Map<String, dynamic>?)?.keys
-                .map((userId) => fetchUserData(userId)) ??
-            [])
-        ..addAll((participantMap[EventResponseStatus.DECLINED.toKey()] as Map<String, dynamic>?)
-                ?.keys
-                .map((userId) => fetchUserData(userId)) ??
-            [])
-        ..addAll((participantMap[EventResponseStatus.TENTATIVE.toKey()] as Map<String, dynamic>?)
-                ?.keys
-                .map((userId) => fetchUserData(userId)) ??
-            []));
-      eventData[EVENT_HOST_DATA_KEY] = userList.removeAt(0);
-      eventData[EVENT_INVITED_USERS_KEY] = List.from(userList);
-      final int acceptedUsersLength =
-          participantMap[EventResponseStatus.ACCEPTED.toKey()]?.length ?? 0;
-      final int declinedUsersLength =
-          participantMap[EventResponseStatus.DECLINED.toKey()]?.length ?? 0;
-      eventData[EVENT_ACCEPTED_USERS_KEY] = userList
-          .sublist(0, acceptedUsersLength);
-      eventData[EVENT_DECLINED_USERS_KEY] = userList
-          .sublist(
-              acceptedUsersLength, acceptedUsersLength + declinedUsersLength);
-      eventData[EVENT_TENTATIVE_USERS_KEY] = userList
-          .sublist(acceptedUsersLength + declinedUsersLength);
-      return EventModel.fromMap(eventData);
+      return await _getEventFromDocumentData(
+          eventId, eventDoc.data() as Map<String, dynamic>);
     } catch (e, s) {
       print('$ERROR_HEADER fetchEventDataById failed: $e - $s');
       return null;
     }
+  }
+
+  Future<EventModel> _getEventFromDocumentData(
+      String eventId, Map<String, dynamic> eventData) async {
+    eventData.addAll({EVENT_ID_KEY: eventId});
+    eventData[EVENT_DURATION_TIME_KEY] =
+        (eventData[EVENT_END_TIME_KEY] as Timestamp)
+            .toDate()
+            .difference((eventData[EVENT_END_TIME_KEY] as Timestamp).toDate());
+    final participantMap = eventData[EVENT_PARTICIPANTS_KEY];
+    final userList = await Future.wait([
+      fetchUserData(eventData[EVENT_HOST_ID_KEY])
+    ]
+      ..addAll((participantMap[EventResponseStatus.ACCEPTED.toKey()]
+                  as Map<String, dynamic>?)
+              ?.keys
+              .map((userId) => fetchUserData(userId)) ??
+          [])
+      ..addAll((participantMap[EventResponseStatus.DECLINED.toKey()]
+                  as Map<String, dynamic>?)
+              ?.keys
+              .map((userId) => fetchUserData(userId)) ??
+          [])
+      ..addAll((participantMap[EventResponseStatus.TENTATIVE.toKey()]
+                  as Map<String, dynamic>?)
+              ?.keys
+              .map((userId) => fetchUserData(userId)) ??
+          []));
+    eventData[EVENT_HOST_DATA_KEY] = userList.removeAt(0);
+    eventData[EVENT_INVITED_USERS_KEY] = List.from(userList);
+    final int acceptedUsersLength =
+        participantMap[EventResponseStatus.ACCEPTED.toKey()]?.length ?? 0;
+    final int declinedUsersLength =
+        participantMap[EventResponseStatus.DECLINED.toKey()]?.length ?? 0;
+    eventData[EVENT_ACCEPTED_USERS_KEY] =
+        userList.sublist(0, acceptedUsersLength);
+    eventData[EVENT_DECLINED_USERS_KEY] = userList.sublist(
+        acceptedUsersLength, acceptedUsersLength + declinedUsersLength);
+    eventData[EVENT_TENTATIVE_USERS_KEY] =
+        userList.sublist(acceptedUsersLength + declinedUsersLength);
+    return EventModel.fromMap(eventData);
   }
 
   /// Add/update a list of users and their event response status
@@ -190,5 +203,11 @@ class FirestoreService {
       print('$ERROR_HEADER createEvent failed: $e - $s');
       return null;
     });
+  }
+
+  Stream<Future<EventModel>> getEventModelStream(String eventId) {
+    return _db.collection(EVENT_COLLECTION_PATH).doc(eventId).snapshots().map(
+        (eventDoc) => _getEventFromDocumentData(
+            eventId, eventDoc.data() as Map<String, dynamic>));
   }
 }

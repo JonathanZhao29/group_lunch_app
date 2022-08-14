@@ -71,8 +71,8 @@ class _HomePageState extends State<HomePage> {
       // ),
       body: EventList(
         eventIdList: user.eventIdList,
-        onEventPressed: (event){
-          print(event.toMap());
+        onEventPressed: (event, currentEventResponseStatus){
+          print('${event.toMap()} + $currentEventResponseStatus');
         },
       ),
     );

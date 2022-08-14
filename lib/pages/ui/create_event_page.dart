@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:group_lunch_app/models/user_model.dart';
 import 'package:group_lunch_app/models/event_model.dart';
+import 'package:group_lunch_app/services/firestore_service.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+
+import '../../services/locator.dart';
 
 class CreateInvitePage extends StatelessWidget {
   @override
@@ -14,15 +17,19 @@ class CreateInvitePage extends StatelessWidget {
 
 class EnterEventInfo extends StatefulWidget {
   const EnterEventInfo({Key? key}) : super(key: key);
+
   @override
   State<EnterEventInfo> createState() => _EnterEventInfoState();
 }
 
 class _EnterEventInfoState extends State<EnterEventInfo> {
   final _formKey = GlobalKey<FormState>();
+  final _firestoreService = locator<FirestoreService>();
   final numControllers = 2;
+
   //For Event Info
   List<TextEditingController> inputControllerList = [];
+
   // Create text editing controllers
   void createTextEditingControllerList(
       int numControllers, List<TextEditingController> controllers) {
@@ -104,6 +111,32 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
         ],
       ),
     );
+  }
+
+  Future<bool> _createEvent(EventModel event, Iterable<String> invitedUsersList, Iterable<String> invitedPhoneNumbers) async {
+    // Create event document in Firestore
+    final eventId = await _firestoreService.createEvent(event);
+    if (eventId == null) {
+      return false;
+    }
+    // Add Event data to respective users
+    final inviteResults = await Future.wait(
+      [
+        _firestoreService.updateUserEventsData(
+            event.eventHost.id, {eventId: EventResponseStatus.ACCEPTED}),
+      ]..addAll(
+          event.eventInvites.map(
+            (user) => _firestoreService.updateUserEventsData(
+                user.id, {eventId: EventResponseStatus.TENTATIVE}),
+          ),
+        ),
+    );
+    final successfulInvites = inviteResults.where((val) => val).length;
+    print('createEvent successful invites = $successfulInvites | failedInvites = ${inviteResults.length - successfulInvites}');
+    return successfulInvites > 0;
+    //TODO: send push notification to invited users
+
+    //TODO: Send invites to phone numbers that don't have an account
   }
 }
 

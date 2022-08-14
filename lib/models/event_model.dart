@@ -78,7 +78,7 @@ enum EventResponseStatus {
   TENTATIVE,
 }
 
-extension Stringify on EventResponseStatus {
+extension StringifyEventResponseStatus on EventResponseStatus {
   String toKey() {
     String val;
     switch (this) {
@@ -93,5 +93,17 @@ extension Stringify on EventResponseStatus {
         break;
     }
     return val;
+  }
+  static EventResponseStatus fromString(String value) {
+    switch(value){
+      case 'declined':
+        return EventResponseStatus.DECLINED;
+      case 'accepted':
+        return EventResponseStatus.ACCEPTED;
+      case 'tentative':
+        return EventResponseStatus.TENTATIVE;
+      default:
+        throw(new Exception('EventResponseStatus fromString value = $value does not match any status value'));
+    }
   }
 }

@@ -80,6 +80,18 @@ class FirestoreService {
     );
   }
 
+  /// Updates events data for specified user
+  Future<bool> updateUserEventsData(String userId, Map<String, EventResponseStatus> events) async {
+    print('FirestoreService updateUserEventsData userId = $userId | events = $events');
+    final docRef = _db.collection(USER_COLLECTION_PATH).doc(userId);
+    final newData = events.map((key, val) => MapEntry('$USER_EVENT_ID_LIST_KEY.$key', val.toKey()));
+    await docRef.update(newData).onError((e, s){
+      print('$ERROR_HEADER updateUserEventsData failed: $e - $s');
+      return false;
+    });
+    return true;
+  }
+
   /** Event related functions **/
 
   /// Fetch event data and populate invitee list with user data
@@ -160,7 +172,7 @@ class FirestoreService {
     });
   }
 
-  /// Creates new event document in firestore from EventModel object
+  /// Creates new event document in firestore from EventModel object.
   /// Participant data initialized to empty for all response types.
   /// Use [FirestoreService.addOrUpdateUserEventResponse] to set participant data
   Future<String?> createEvent(EventModel event) async {

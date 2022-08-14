@@ -1,21 +1,25 @@
 part of 'widgets.dart';
 
 class EventList extends StatelessWidget {
-  const EventList({Key? key, required this.eventIdList, this.onEventPressed}) : super(key: key);
-  final List<String> eventIdList;
-  final Function(EventModel)? onEventPressed;
+  const EventList({Key? key, required this.eventIdList, this.onEventPressed})
+      : super(key: key);
+  final Map<String, EventResponseStatus> eventIdList;
+  final Function(EventModel, EventResponseStatus)? onEventPressed;
 
   @override
   Widget build(BuildContext context) {
     print('EventList eventIdList = $eventIdList');
     return FutureBuilder(
-      future: Future.wait(eventIdList.map(
-              (eventId) => locator<FirestoreService>().fetchCompleteEventDataById(eventId))),
+      future: Future.wait(eventIdList.keys.map((eventId) =>
+          eventIdList[eventId] != EventResponseStatus.DECLINED
+              ? locator<FirestoreService>().fetchCompleteEventDataById(eventId)
+              : Future.value(null))),
       builder: (_, snapshot) {
         if (!snapshot.hasData) {
           return CircularProgressIndicator();
         }
         if (snapshot.hasError) {
+          print('EvenList futuer builder error: ${snapshot.error}');
           return Text('Could not fetch event data. Try again later');
         }
         if (snapshot.hasData) {
@@ -23,12 +27,13 @@ class EventList extends StatelessWidget {
           return ListView.builder(
             itemCount: eventData.length,
             itemBuilder: (_, index) {
-              if(eventData[index] == null) {
+              if (eventData[index] == null) {
                 return Container();
               }
               return EventListTile(
                 event: eventData[index]!,
                 onEventSelected: onEventPressed,
+                eventResponseStatus: eventIdList[eventData[index]!.id]!,
               );
             },
           );
@@ -39,18 +44,19 @@ class EventList extends StatelessWidget {
   }
 }
 
-
 class EventListTile extends StatelessWidget {
-  const EventListTile({Key? key, required this.event, this.onEventSelected}) : super(key: key);
+  const EventListTile({Key? key, required this.event, required this.eventResponseStatus, this.onEventSelected})
+      : super(key: key);
   final EventModel event;
-  final Function(EventModel)? onEventSelected;
+  final EventResponseStatus eventResponseStatus;
+  final Function(EventModel, EventResponseStatus)? onEventSelected;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(event.eventName),
-      onTap: (){
-        onEventSelected?.call(event);
+      title: Text('${event.eventName} - ${eventResponseStatus.toKey()}'),
+      onTap: () {
+        onEventSelected?.call(event, eventResponseStatus);
       },
     );
   }

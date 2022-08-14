@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:group_lunch_app/models/event_model.dart';
 import 'package:group_lunch_app/shared/strings.dart';
 
 class UserModel extends Object {
@@ -7,7 +8,7 @@ class UserModel extends Object {
   final String? name;
   final String phoneNumber;
   final String? avatar;
-  late final List<String> eventIdList;
+  late final Map<String, EventResponseStatus> eventIdList;
 
   String get displayName => name ?? phoneNumber;
 
@@ -16,8 +17,8 @@ class UserModel extends Object {
       this.createdAt,
       this.name,
       required this.phoneNumber,
-        List<String>? eventIdList,
-      this.avatar}) : eventIdList = eventIdList ?? [];
+        Map<String, EventResponseStatus>? eventIdList,
+      this.avatar}) : eventIdList = eventIdList ?? {};
 
   static UserModel get defaultUser => UserModel(id: '', phoneNumber: '');
 
@@ -28,7 +29,7 @@ class UserModel extends Object {
       name: data[USER_NAME_KEY],
       phoneNumber: data[USER_PHONE_NUMBER_KEY],
       avatar: data[USER_AVATAR_KEY],
-      eventIdList: (data[USER_EVENT_ID_LIST_KEY] as List<dynamic>?)?.map((val) => val.toString()).toList() ?? <String>[],
+      eventIdList: (data[USER_EVENT_ID_LIST_KEY] as Map<String, dynamic>?)?.map((key, val) => MapEntry(key, StringifyEventResponseStatus.fromString(val as String))),
     );
   }
 

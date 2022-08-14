@@ -36,6 +36,13 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
   List<UserModel> invitees = [];
 
   @override
+  void initState() {
+    super.initState();
+    //Create the text editing controllers
+    createTextEditingControllerList(numControllers, inputControllerList);
+  }
+
+  @override
   void dispose() {
     // Clean up the controller when the widget is disposed.
     for (TextEditingController controller in inputControllerList) {
@@ -46,8 +53,6 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
 
   @override
   Widget build(BuildContext context) {
-    //Create the text editing controllers
-    createTextEditingControllerList(numControllers, inputControllerList);
     //User Inputs Information
     return Scaffold(
       appBar: AppBar(

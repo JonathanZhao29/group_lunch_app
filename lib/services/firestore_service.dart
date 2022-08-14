@@ -50,12 +50,14 @@ class FirestoreService {
 
   /// get UserModel corresponding to [userId]
   Future<UserModel?> fetchUserData(String userId) async {
+    print('fetchUserData userId = $userId');
     final docRef = _db.collection(USER_COLLECTION_PATH).doc(userId);
     return docRef.get().then(
       (doc) {
         if (!doc.exists || doc.data() == null) return null;
         final data = doc.data() as Map<String, dynamic>;
         data.addAll({USER_ID_KEY: userId});
+        print('fetchUserData data = $data');
         return UserModel.fromMap(data);
       },
       onError: (e, s) {
@@ -81,65 +83,71 @@ class FirestoreService {
   /** Event related functions **/
 
   /// Fetch event data and populate invitee list with user data
-  Future<EventModel?> fetchEventDataById(String eventId) async {
-    final eventDocRef = _db.collection(EVENT_COLLECTION_PATH).doc(eventId);
-    return eventDocRef.get().then(
-      (eventDoc) async {
-        if (!eventDoc.exists || eventDoc.data() == null) return null;
-        final eventData = eventDoc.data() as Map<String, dynamic>;
-        eventData.addAll({EVENT_ID_KEY: eventId});
-        eventData[EVENT_DURATION_TIME_KEY] = (eventData[EVENT_END_TIME_KEY]
-                as Timestamp)
-            .toDate()
-            .difference((eventData[EVENT_END_TIME_KEY] as Timestamp).toDate());
-        final participantMap =
-            eventData[EVENT_PARTICIPANTS_KEY] as Map<String, Map<String, dynamic>>;
-        await Future.wait([fetchUserData(eventData[EVENT_HOST_ID_KEY])]
-              ..addAll(participantMap[EventResponseStatus.ACCEPTED.toKey()]?.keys.map((userId) => fetchUserData(userId)) ?? [])
-              ..addAll(participantMap[EventResponseStatus.DECLINED.toKey()]?.keys.map((userId) => fetchUserData(userId)) ?? [])
-              ..addAll(participantMap[EventResponseStatus.TENTATIVE.toKey()]?.keys.map((userId) => fetchUserData(userId)) ?? []))
-            .then(
-          (userList) {
-            eventData[EVENT_HOST_DATA_KEY] = userList.removeAt(0);
-            eventData[EVENT_INVITED_USERS_KEY] = List.from(userList);
-            final acceptedUsersLength = participantMap[EventResponseStatus.ACCEPTED.toKey()]?.length ?? 0;
-            final declinedUsersLength = participantMap[EventResponseStatus.DECLINED.toKey()]?.length ?? 0;
-            eventData[EVENT_ACCEPTED_USERS_KEY] = userList
-                .sublist(0, acceptedUsersLength)
-                .where((user) => user != null)
-                .toList() as List<UserModel>;
-            eventData[EVENT_DECLINED_USERS_KEY] = userList
-                .sublist(acceptedUsersLength, acceptedUsersLength + declinedUsersLength)
-                .where((user) => user != null)
-                .toList() as List<UserModel>;
-            eventData[EVENT_TENTATIVE_USERS_KEY] = userList
-                .sublist(acceptedUsersLength + declinedUsersLength)
-                .where((user) => user != null)
-                .toList() as List<UserModel>;
-          },
-        );
-        return EventModel.fromMap(eventData);
-      },
-      onError: (e, s) {
-        print('$ERROR_HEADER fetchEventDataById failed: $e - $s');
+  Future<EventModel?> fetchCompleteEventDataById(String eventId) async {
+    try {
+      print('fetchCompleteEventDataById eventId = $eventId');
+      final eventDoc = await _db.collection(EVENT_COLLECTION_PATH).doc(eventId).get();
+      if (!eventDoc.exists || eventDoc.data() == null) {
+        print('$ERROR_HEADER fetchEventDataById doc.exists = ${eventDoc.exists} eventDoc = ${eventDoc.data()}');
         return null;
-      },
-    );
+      }
+      final eventData = eventDoc.data() as Map<String, dynamic>;
+      eventData.addAll({EVENT_ID_KEY: eventId});
+      eventData[EVENT_DURATION_TIME_KEY] = (eventData[EVENT_END_TIME_KEY]
+              as Timestamp)
+          .toDate()
+          .difference((eventData[EVENT_END_TIME_KEY] as Timestamp).toDate());
+      final participantMap = eventData[EVENT_PARTICIPANTS_KEY];
+      final userList = await Future.wait([
+        fetchUserData(eventData[EVENT_HOST_ID_KEY])
+      ]
+        ..addAll((participantMap[EventResponseStatus.ACCEPTED.toKey()] as Map<String, dynamic>?)?.keys
+                .map((userId) => fetchUserData(userId)) ??
+            [])
+        ..addAll((participantMap[EventResponseStatus.DECLINED.toKey()] as Map<String, dynamic>?)
+                ?.keys
+                .map((userId) => fetchUserData(userId)) ??
+            [])
+        ..addAll((participantMap[EventResponseStatus.TENTATIVE.toKey()] as Map<String, dynamic>?)
+                ?.keys
+                .map((userId) => fetchUserData(userId)) ??
+            []));
+      eventData[EVENT_HOST_DATA_KEY] = userList.removeAt(0);
+      eventData[EVENT_INVITED_USERS_KEY] = List.from(userList);
+      final int acceptedUsersLength =
+          participantMap[EventResponseStatus.ACCEPTED.toKey()]?.length ?? 0;
+      final int declinedUsersLength =
+          participantMap[EventResponseStatus.DECLINED.toKey()]?.length ?? 0;
+      eventData[EVENT_ACCEPTED_USERS_KEY] = userList
+          .sublist(0, acceptedUsersLength);
+      eventData[EVENT_DECLINED_USERS_KEY] = userList
+          .sublist(
+              acceptedUsersLength, acceptedUsersLength + declinedUsersLength);
+      eventData[EVENT_TENTATIVE_USERS_KEY] = userList
+          .sublist(acceptedUsersLength + declinedUsersLength);
+      return EventModel.fromMap(eventData);
+    } catch (e, s) {
+      print('$ERROR_HEADER fetchEventDataById failed: $e - $s');
+      return null;
+    }
   }
 
   /// Add/update a list of users and their event response status
-  Future<bool?> addOrUpdateUserEventResponse(
-      String eventId, Iterable<String> userIdList, EventResponseStatus status) async {
+  Future<bool> addOrUpdateUserEventResponse(String eventId,
+      Iterable<String> userIdList, EventResponseStatus status) async {
     final eventDocRef = _db.collection(EVENT_COLLECTION_PATH).doc(eventId);
     final otherStatuses = EventResponseStatus.values..remove(status);
     // Generate map of all new data
-    final newData = userIdList.fold<Map<String, Object>>({}, (currentMap, userId){
+    final newData =
+        userIdList.fold<Map<String, Object>>({}, (currentMap, userId) {
       // Add/update entry in map with corresponding [status]
       final Map<String, Object> currentUserData = {
         '$EVENT_PARTICIPANTS_KEY.$status.$userId': FieldValue.serverTimestamp(),
       };
       // Delete entries in other maps
-      currentUserData.addEntries(otherStatuses.map((otherStatus) => MapEntry('$EVENT_PARTICIPANTS_KEY.$otherStatus.$userId', FieldValue.delete())));
+      currentUserData.addEntries(otherStatuses.map((otherStatus) => MapEntry(
+          '$EVENT_PARTICIPANTS_KEY.$otherStatus.$userId',
+          FieldValue.delete())));
       currentMap.addAll(currentUserData);
       return currentMap;
     });
@@ -151,6 +159,7 @@ class FirestoreService {
       return false;
     });
   }
+
   /// Creates new event document in firestore from EventModel object
   /// Participant data initialized to empty for all response types.
   /// Use [FirestoreService.addOrUpdateUserEventResponse] to set participant data

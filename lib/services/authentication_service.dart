@@ -77,8 +77,10 @@ class AuthenticationService {
 
   Future<bool> login({required String phoneNumber, required String password}) async {
     try {
+      print('authenticationService login called');
       var result = await _auth.signInWithEmailAndPassword(
           email: getEmailFromPhone(phoneNumber), password: password);
+      print('authenticationService login called');
       updateUser(result.user);
       return result.user != null;
     } catch (e) {

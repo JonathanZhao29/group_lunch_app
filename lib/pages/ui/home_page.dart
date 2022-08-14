@@ -6,6 +6,7 @@ import 'package:group_lunch_app/shared/routes.dart';
 
 import '../../models/user_model.dart';
 import '../../services/firestore_service.dart';
+import '../../widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -58,15 +59,21 @@ class _HomePageState extends State<HomePage> {
               })
         ],
       ),
-      body: Column(
-        //List of Current Invites/group chats
-        children: [
-          invitePageButton("0001", "John Huang"),
-          invitePageButton("0002", "Jonny"),
-          invitePageButton("0003", "John C")
-        ],
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.start,
+      // body: Column(
+      //   //List of Current Invites/group chats
+      //   children: [
+      //     // invitePageButton("0001", "John Huang"),
+      //     // invitePageButton("0002", "Jonny"),
+      //     // invitePageButton("0003", "John C")
+      //   ],
+      //   crossAxisAlignment: CrossAxisAlignment.start,
+      //   mainAxisAlignment: MainAxisAlignment.start,
+      // ),
+      body: EventList(
+        eventIdList: user.eventIdList,
+        onEventPressed: (event){
+          print(event.toMap());
+        },
       ),
     );
   }

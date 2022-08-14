@@ -4,6 +4,7 @@ const String USER_CREATED_AT_KEY = 'created_at';
 const String USER_ID_KEY = 'user_id';
 const String USER_NAME_KEY = 'name';
 const String USER_PHONE_NUMBER_KEY = 'phone_number';
+const String USER_EVENT_ID_LIST_KEY = 'event_id_list';
 
 // Event Model
 const String EVENT_ACTIVE_KEY = 'is_active';

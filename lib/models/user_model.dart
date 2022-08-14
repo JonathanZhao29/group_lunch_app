@@ -7,6 +7,7 @@ class UserModel extends Object {
   final String? name;
   final String phoneNumber;
   final String? avatar;
+  late final List<String> eventIdList;
 
   String get displayName => name ?? phoneNumber;
 
@@ -15,7 +16,8 @@ class UserModel extends Object {
       this.createdAt,
       this.name,
       required this.phoneNumber,
-      this.avatar});
+        List<String>? eventIdList,
+      this.avatar}) : eventIdList = eventIdList ?? [];
 
   static UserModel get defaultUser => UserModel(id: '', phoneNumber: '');
 
@@ -26,6 +28,7 @@ class UserModel extends Object {
       name: data[USER_NAME_KEY],
       phoneNumber: data[USER_PHONE_NUMBER_KEY],
       avatar: data[USER_AVATAR_KEY],
+      eventIdList: (data[USER_EVENT_ID_LIST_KEY] as List<dynamic>?)?.map((val) => val.toString()).toList() ?? <String>[],
     );
   }
 

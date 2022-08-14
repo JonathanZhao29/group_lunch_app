@@ -19,7 +19,7 @@ class EventList extends StatelessWidget {
           return CircularProgressIndicator();
         }
         if (snapshot.hasError) {
-          print('EvenList futuer builder error: ${snapshot.error}');
+          print('EvenList future builder error: ${snapshot.error}');
           return Text('Could not fetch event data. Try again later');
         }
         if (snapshot.hasData) {

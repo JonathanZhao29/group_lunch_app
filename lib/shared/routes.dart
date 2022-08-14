@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:group_lunch_app/pages/ui/create_event_page.dart';
-import 'package:group_lunch_app/pages/ui/home_page.dart';
-import 'package:group_lunch_app/pages/ui/authentication_page.dart';
-
-import '../pages/ui/loading_page.dart';
+import 'package:group_lunch_app/pages/create_event_page.dart';
+import 'package:group_lunch_app/pages/home_page.dart';
+import 'package:group_lunch_app/pages/authentication_page/authentication_page.dart';
+import 'package:group_lunch_app/pages/loading_page.dart';
 
 const String AuthenticationPageRoute = "auth";
 const String HomePageRoute = "home";

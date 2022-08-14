@@ -6,7 +6,7 @@ import 'package:group_lunch_app/services/firestore_service.dart';
 import 'package:intl/intl.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 
-import '../../services/locator.dart';
+import '../services/locator.dart';
 
 class CreateInvitePage extends StatelessWidget {
   @override

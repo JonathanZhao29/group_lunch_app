@@ -4,9 +4,9 @@ import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/shared/routes.dart';
 
-import '../../models/user_model.dart';
-import '../../services/firestore_service.dart';
-import '../../widgets/widgets.dart';
+import '../models/user_model.dart';
+import '../services/firestore_service.dart';
+import '../widgets/widgets.dart';
 
 class HomePage extends StatefulWidget {
   @override

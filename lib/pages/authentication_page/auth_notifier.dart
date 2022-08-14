@@ -7,7 +7,7 @@ import '../../services/authentication_service.dart';
 import '../../services/locator.dart';
 import '../../services/navigation_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'base_notifier.dart';
+import '../base_notifier.dart';
 
 class AuthNotifier extends BaseNotifier {
   final AuthenticationService _authService = locator<AuthenticationService>();

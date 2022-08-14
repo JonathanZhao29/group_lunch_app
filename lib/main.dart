@@ -2,13 +2,12 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:group_lunch_app/pages/ui/loading_page.dart';
+import 'package:group_lunch_app/pages/loading_page.dart';
 import 'package:group_lunch_app/services/firestore_service.dart';
 import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/services/authentication_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'pages/ui/home_page.dart';
 import './shared/routes.dart';
 
 void main() async {
@@ -42,7 +41,7 @@ class MyApp extends StatelessWidget {
                   ),
                   navigatorKey: locator<NavigationService>().navigationKey,
                   onGenerateRoute: routeFactory,
-                  initialRoute: HomePageRoute,
+                  initialRoute: LoadingPageRoute,
                 ),
               );
               break;
@@ -91,7 +90,7 @@ class _AuthStreamListenerState extends State<AuthStreamListener> {
           print("User signed out!");
           _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
         } else {
-          print("User signed in!");
+          print("User signed in! AuthUser = $user");
           if (_authService.isPhoneVerified()) {
             final userModel = await _firestoreService.getLoggedInUser();
             print('login userModel = $userModel');

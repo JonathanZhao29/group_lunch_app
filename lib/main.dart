@@ -12,14 +12,14 @@ import 'pages/ui/home_page.dart';
 import './shared/routes.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   Future<FirebaseApp> initialize() async {
-    WidgetsFlutterBinding.ensureInitialized();
     var result = await Firebase.initializeApp();
-    setupLocator();
     return result;
   }
 

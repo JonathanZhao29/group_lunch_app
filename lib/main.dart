@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:group_lunch_app/pages/ui/loading_page.dart';
+import 'package:group_lunch_app/services/firestore_service.dart';
 import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/services/authentication_service.dart';
@@ -11,14 +12,14 @@ import 'pages/ui/home_page.dart';
 import './shared/routes.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  setupLocator();
   runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
   Future<FirebaseApp> initialize() async {
-    WidgetsFlutterBinding.ensureInitialized();
     var result = await Firebase.initializeApp();
-    setupLocator();
     return result;
   }
 
@@ -28,14 +29,10 @@ class MyApp extends StatelessWidget {
         future: initialize(),
         builder: (context, snapshot) {
           Widget content;
+
           switch (snapshot.connectionState) {
-            // case ConnectionState.none:
-            //   break;
-            // case ConnectionState.waiting:
-            //   break;
-            // case ConnectionState.active:
-            //   break;
             case ConnectionState.done:
+              print('connectionState.done');
               content = AuthStreamListener(
                 stream: locator<AuthenticationService>().authSubscription,
                 child: MaterialApp(
@@ -45,11 +42,15 @@ class MyApp extends StatelessWidget {
                   ),
                   navigatorKey: locator<NavigationService>().navigationKey,
                   onGenerateRoute: routeFactory,
-                  initialRoute: LoadingPageRoute,
+                  initialRoute: HomePageRoute,
                 ),
               );
               break;
+            case ConnectionState.none:
+            case ConnectionState.waiting:
+            case ConnectionState.active:
             default:
+              print('ConnectionState = ${snapshot.connectionState}');
               content = MaterialApp(
                 home: LoadingPage(),
               );
@@ -74,6 +75,7 @@ class _AuthStreamListenerState extends State<AuthStreamListener> {
   late StreamSubscription _subscription;
   final NavigationService _navService = locator<NavigationService>();
   final AuthenticationService _authService = locator<AuthenticationService>();
+  final FirestoreService _firestoreService = locator<FirestoreService>();
 
   @override
   initState() {
@@ -83,17 +85,20 @@ class _AuthStreamListenerState extends State<AuthStreamListener> {
 
   _listen() {
     _subscription = widget.stream.listen(
-      (User? user) {
+      (User? user) async {
+        _authService.updateUser(user);
         if (user == null) {
           print("User signed out!");
           _navService.navigateToAndReplaceAll(AuthenticationPageRoute);
         } else {
           print("User signed in!");
           if (_authService.isPhoneVerified()) {
+            final userModel = await _firestoreService.getLoggedInUser();
+            print('login userModel = $userModel');
+            if(userModel == null) await _firestoreService.createUserData(user);
             _navService.navigateToAndReplaceAll(HomePageRoute);
           }
         }
-        _authService.updateUser();
       },
     );
   }

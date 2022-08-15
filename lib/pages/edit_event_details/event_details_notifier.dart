@@ -6,16 +6,30 @@ import '../../services/locator.dart';
 
 class EventDetailsNotifier extends BaseNotifier {
   final _fireStoreService = locator<FirestoreService>();
+
+  final String eventId;
+
+  late final Stream<Future<EventModel>> eventModelStream;
+  late final EventModel eventModel;
+  bool initialized = false;
+  EventModel? updatedEventModel;
+
+  bool editing = false;
+
   EventDetailsNotifier({required this.eventId}) {
     eventModelStream = _fireStoreService.getEventModelStream(eventId);
     eventModelStream.listen(eventModelListener);
+    eventModelStream.first.then(
+        (result) async {
+          eventModel = await result;
+          initialized = true;
+          notifyListeners();
+        }
+    );
   }
-  late final Stream<Future<EventModel>> eventModelStream;
-  final String eventId;
-  late final EventModel eventModel;
 
   void eventModelListener(Future<EventModel> eventModelFuture) async {
-    eventModel = await eventModelFuture;
+    updatedEventModel = await eventModelFuture;
     notifyListeners();
   }
 

@@ -2,12 +2,14 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:group_lunch_app/pages/authentication_page/auth_notifier.dart';
 import 'package:group_lunch_app/pages/loading_page.dart';
 import 'package:group_lunch_app/services/firestore_service.dart';
 import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/services/authentication_service.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:group_lunch_app/shared/strings.dart';
 import './shared/routes.dart';
 
 void main() async {
@@ -97,6 +99,10 @@ class _AuthStreamListenerState extends State<AuthStreamListener> {
             if(userModel == null) await _firestoreService.createUserData(user);
             _navService.navigateToAndReplaceAll(HomePageRoute);
           }
+          _navService.navigateToAndReplaceAll(AuthenticationPageRoute, arguments: {
+            INITIAL_AUTH_MODE_ARGUMENT_KEY: AuthMode.verificationMode,
+          });
+
         }
       },
     );

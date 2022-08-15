@@ -12,7 +12,6 @@ class EditEventPage extends StatefulWidget {
 }
 
 class _EditEventPageState extends State<EditEventPage> {
-
   late final EventDetailsNotifier notifier;
 
   @override
@@ -23,6 +22,29 @@ class _EditEventPageState extends State<EditEventPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    if (!notifier.initialized) {
+      print('eventModel is not initialized');
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(),
+        )
+      );
+    }
+    return Scaffold(
+      body: Column(
+        children: [
+          _buildName(),
+          _buildDescription(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildName() {
+    return Text(notifier.eventModel.eventName);
+  }
+
+  Widget _buildDescription() {
+    return Text(notifier.eventModel.eventDescription ?? '');
   }
 }

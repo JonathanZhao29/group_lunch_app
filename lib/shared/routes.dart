@@ -9,10 +9,13 @@ import 'package:provider/provider.dart';
 
 import '../pages/edit_event_details/event_details_notifier.dart';
 
+/// Arguments: [INITIAL_AUTH_MODE_ARGUMENT_KEY]
 const String AuthenticationPageRoute = "auth";
 const String HomePageRoute = "home";
 const String InvitePageRoute = "invite";
 const String LoadingPageRoute = "loading";
+
+/// Arguments: [EVENT_ID_ARGUMENT_KEY]
 const String EditEventPageRoute = "edit_event_details";
 
 Route<dynamic> routeFactory(RouteSettings settings) {

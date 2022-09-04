@@ -98,6 +98,7 @@ class _AuthStreamListenerState extends State<AuthStreamListener> {
             print('login userModel = $userModel');
             if(userModel == null) await _firestoreService.createUserData(user);
             _navService.navigateToAndReplaceAll(HomePageRoute);
+            return;
           }
           _navService.navigateToAndReplaceAll(AuthenticationPageRoute, arguments: {
             INITIAL_AUTH_MODE_ARGUMENT_KEY: AuthMode.verificationMode,

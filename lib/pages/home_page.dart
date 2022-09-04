@@ -3,6 +3,7 @@ import 'package:group_lunch_app/services/authentication_service.dart';
 import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
 import 'package:group_lunch_app/shared/routes.dart';
+import 'package:group_lunch_app/shared/strings.dart';
 
 import '../models/user_model.dart';
 import '../services/firestore_service.dart';
@@ -73,6 +74,9 @@ class _HomePageState extends State<HomePage> {
         eventIdList: user.eventIdList,
         onEventPressed: (event, currentEventResponseStatus){
           print('${event.toMap()} + $currentEventResponseStatus');
+          _navService.navigateTo(EditEventPageRoute, arguments: {
+            EVENT_ID_ARGUMENT_KEY: event.id,
+          });
         },
       ),
     );

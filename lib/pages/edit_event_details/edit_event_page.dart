@@ -17,11 +17,11 @@ class _EditEventPageState extends State<EditEventPage> {
   @override
   void initState() {
     super.initState();
-    notifier = Provider.of<EventDetailsNotifier>(context);
   }
 
   @override
   Widget build(BuildContext context) {
+    notifier = Provider.of<EventDetailsNotifier>(context);
     if (!notifier.initialized) {
       print('eventModel is not initialized');
       return Scaffold(

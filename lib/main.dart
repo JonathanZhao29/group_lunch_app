@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:group_lunch_app/pages/authentication_page/auth_notifier.dart';
+import 'package:group_lunch_app/pages/home_page.dart';
 import 'package:group_lunch_app/pages/loading_page.dart';
 import 'package:group_lunch_app/services/firestore_service.dart';
 import 'package:group_lunch_app/services/locator.dart';
@@ -43,7 +44,9 @@ class MyApp extends StatelessWidget {
                   ),
                   navigatorKey: locator<NavigationService>().navigationKey,
                   onGenerateRoute: routeFactory,
-                  initialRoute: LoadingPageRoute,
+                  //HACK
+                  initialRoute: HomePageRoute,
+                  //initialRoute: LoadingPageRoute,
                 ),
               );
               break;
@@ -53,7 +56,9 @@ class MyApp extends StatelessWidget {
             default:
               print('ConnectionState = ${snapshot.connectionState}');
               content = MaterialApp(
-                home: LoadingPage(),
+                //HACK
+                home: HomePage()
+                //home: LoadingPage(),
               );
           }
           return content;
@@ -100,10 +105,13 @@ class _AuthStreamListenerState extends State<AuthStreamListener> {
             _navService.navigateToAndReplaceAll(HomePageRoute);
             return;
           }
-          _navService.navigateToAndReplaceAll(AuthenticationPageRoute, arguments: {
-            INITIAL_AUTH_MODE_ARGUMENT_KEY: AuthMode.verificationMode,
-          });
+          //HACK
+          _navService.navigateToAndReplaceAll(HomePageRoute);
 
+          // _navService.navigateToAndReplaceAll(AuthenticationPageRoute, arguments: {
+          //   INITIAL_AUTH_MODE_ARGUMENT_KEY: AuthMode.verificationMode,
+          // });
+          //END HACK
         }
       },
     );

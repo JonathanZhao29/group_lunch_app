@@ -25,9 +25,11 @@ class EnterEventInfo extends StatefulWidget {
 class _EnterEventInfoState extends State<EnterEventInfo> {
   final _formKey = GlobalKey<FormState>();
   final _firestoreService = locator<FirestoreService>();
-  final numControllers = 2;
 
-  //For Event Info
+  //Number of regular input fields(Title, Date, Location, etc)
+  final numControllers = 4;
+
+  //For Storing Event Info
   List<TextEditingController> inputControllerList = [];
 
   // Create text editing controllers
@@ -67,47 +69,42 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
         actions: [],
       ),
       body: Stack(
+        alignment: AlignmentDirectional.bottomCenter,
         children: <Widget>[
-          Form(
-              key: _formKey,
-              child: Column(
-                children: <Widget>[
-                  //Event Title
-                  Text('Event Title'),
-                  titleTextField('Add Title', inputControllerList[0]),
-                  //Event Date
-                  Text('Event Date'),
-                  dateTextField('Add Date', inputControllerList[1]),
+          CustomScrollView(
+            slivers:[SliverFillRemaining(
+            hasScrollBody: false,
+            child:
+              Form(
+                  key: _formKey,
+                  child: Column(
+                    children: <Widget>[
+                      //Event Title
+                      paddedHeadline('Event Title'),
+                      titleTextField('Add Title', inputControllerList[0]),
+                      //Event Date
+                      paddedHeadline('Event Date'),
+                      dateTextField('Add Date', inputControllerList[1]),
 
-                  //TBD: Event Location, store in GeoPoint
-                  Text('Event Location'),
+                      //TBD: Event Location, store in GeoPoint
+                      paddedHeadline('Event Location'),
+                      locationTextField('Add Location', inputControllerList[2]),
 
-                  Padding(
-                    padding: EdgeInsets.all(16.0),
-                    child: Text('Add People or Phone Numbers:'),
-                  ),
-                  dropdownSearchField('Add People or Phone Numbers', invitees),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Enters if statement = form is valid
-                      if (_formKey.currentState!.validate()) {
-                        //Create event with inputted information
+                      paddedHeadline('Add People or Phone Numbers:'),
+                      addInviteeField('Add People or Phone Numbers', invitees),
 
-                        //Print to Console Inputted Information
-                        print("Event Title: " + inputControllerList[0].text);
-                        print("Event Date: " + inputControllerList[1].text);
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Sending Invite...')),
-                        );
-                      } else {
-                        print("Form not valid");
-                      }
-                    },
-                    child: const Text('Send Invite!'), //Or Send Icon
-                  ),
-                ],
-              ))
+                      paddedHeadline('Event Description'),
+                      descriptionTextField('Event Description', inputControllerList[3]),
+                      Spacer(),
+                      
+                    ],
+                  )
+                )
+              )
+            ],
+          ),
+          //Send Invite Button
+          sendInviteButton(_formKey, inputControllerList, context,invitees),
         ],
       ),
     );
@@ -140,6 +137,14 @@ class _EnterEventInfoState extends State<EnterEventInfo> {
   }
 }
 
+Widget paddedHeadline(String inputText){
+  return Padding(
+    padding: EdgeInsets.fromLTRB(0,10,0,0),
+    child: Text(inputText),
+  );
+}
+
+
 //try .map??? to get text, creates a function for each element in list that returns an iterable
 Widget titleTextField(String baseText, TextEditingController inputController) {
   return TextFormField(
@@ -147,13 +152,13 @@ Widget titleTextField(String baseText, TextEditingController inputController) {
     // The validator receives the text that the user has entered.
     validator: (value) {
       if (value == null || value.isEmpty) {
-        return 'Please enter ' + baseText + ' here';
+        return 'Please enter a title here';
       }
       return null;
     },
     decoration: InputDecoration(
       hintText: baseText,
-      contentPadding: EdgeInsets.all(20.0),
+      contentPadding: EdgeInsets.fromLTRB(20,0,0,0),
     ),
   );
 }
@@ -164,15 +169,19 @@ Widget dateTextField(String baseText, TextEditingController inputController) {
   var currentDay = DateTime.now().subtract(const Duration(days: 1));
   //Current time increased by 1 year used as end time
   var lastDayAllowed = DateTime(2100);
+
+  var date;
   //Create DateTimeField
   return DateTimeField(
     format: DateFormat("EEEE MMM dd, ").add_jm(),
     onShowPicker: (context, currentValue) async {
-      final date = await showDatePicker(
+          date = await showDatePicker(
           context: context,
           firstDate: currentDay,
           initialDate: DateTime.now(),
-          lastDate: lastDayAllowed);
+          lastDate: lastDayAllowed,
+          );
+      
       if (date != null) {
         final time = await showTimePicker(
           context: context,
@@ -187,10 +196,40 @@ Widget dateTextField(String baseText, TextEditingController inputController) {
         return currentValue;
       }
     },
+    validator: (date) {
+      if (date == null) {
+        return 'Please enter a date here';
+      }
+      return null;
+    },
+    decoration: InputDecoration(
+      hintText: baseText,
+      contentPadding: EdgeInsets.fromLTRB(20,0,0,0),
+    ),
   );
 }
 
-Widget dropdownSearchField(String baseText, List<UserModel> invitees) {
+//Eventually figure something out with geopoint
+Widget locationTextField(String baseText, TextEditingController inputController){
+  return TextFormField(
+    controller: inputController,
+    // The validator receives the text that the user has entered.
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return 'Please enter a location here';
+      }
+      return null;
+    },
+    decoration: InputDecoration(
+      hintText: baseText,
+      contentPadding: EdgeInsets.fromLTRB(20,0,0,0),
+    ),
+
+  );
+}
+
+//Add invitees widget
+Widget addInviteeField(String baseText, List<UserModel> invitees) {
   // return DropdownSearch<String>.multiSelection(
   //   items: [
   //     "Jonathan",
@@ -207,11 +246,13 @@ Widget dropdownSearchField(String baseText, List<UserModel> invitees) {
   //   selectedItems: [],
   // );
 
+  //listOfUsers hardcoded for now, eventually want to store in local or cloud(preferred)
   List<UserModel> listOfUsers = [
     UserModel(id: "001", name: "John", phoneNumber: "9199199191"),
     UserModel(id: "002", name: "Jonathan", phoneNumber: "1234567890")
   ];
 
+  //Only shows known listOfUsers
   return DropdownSearch<UserModel>.multiSelection(
     //popupProps: PopupPropsMultiSelection.modalBottomSheet(
     //   showSelectedItems: true,
@@ -219,7 +260,8 @@ Widget dropdownSearchField(String baseText, List<UserModel> invitees) {
     // ),
     dropdownDecoratorProps: DropDownDecoratorProps(
       dropdownSearchDecoration: InputDecoration(
-        labelText: 'Names or Phone Numbers',
+        labelText: baseText,
+        contentPadding: EdgeInsets.fromLTRB(20,10,0,0),
       ),
     ),
     //asyncItems: (String filter) => getData(filter),
@@ -228,4 +270,59 @@ Widget dropdownSearchField(String baseText, List<UserModel> invitees) {
     onChanged: (List<UserModel?> data) => print(data),
     selectedItems: invitees,
   );
+}
+
+//Description TextField
+Widget descriptionTextField(String baseText, inputController){
+  return TextFormField(
+    controller: inputController,
+    // The validator receives the text that the user has entered.
+    validator: (value) {
+      if (value == null || value.isEmpty) {
+        return 'Please enter a description here';
+      }
+      return null;
+    },
+    decoration: InputDecoration(
+      hintText: baseText,
+      contentPadding: EdgeInsets.fromLTRB(20,0,0,0),
+      
+    ),
+    //Allow multiline text
+    keyboardType: TextInputType.multiline,
+    minLines: 1,
+    maxLines: 5,
+  );
+}
+
+//Button Widget for sending the invite
+Widget sendInviteButton(_formKey, inputControllerList,context,invitees){
+  return Padding(
+    padding: EdgeInsets.all(16.0), 
+    child:
+      ElevatedButton(
+        onPressed: () {
+          // Enters if statement = form is valid
+          if (_formKey.currentState!.validate()) {
+            //Create event with inputted information
+
+            //Print to Console Inputted Information
+            print("Event Title: " + inputControllerList[0].text);
+            print("Event Date: " + inputControllerList[1].text);
+            print("Event Location: "+ inputControllerList[2].text);
+            print("Invitees: "+ invitees);
+            print("Event Description: " + inputControllerList[3].text);
+
+
+            //"Sending Invite Ribbon"
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Sending Invite...')),
+            );
+          } else {
+            print("Form not valid");
+          }
+        },
+        child: const Text('Send Invite!'), //Or Send Icon
+      ),
+                  );
 }

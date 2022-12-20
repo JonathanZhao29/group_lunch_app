@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:group_lunch_app/pages/dev_user_input_page.dart';
 import 'package:group_lunch_app/services/authentication_service.dart';
 import 'package:group_lunch_app/services/locator.dart';
 import 'package:group_lunch_app/services/navigation_service.dart';
@@ -16,22 +17,26 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final NavigationService _navService = locator<NavigationService>();
-  final AuthenticationService _authService = locator<AuthenticationService>();
-  final FirestoreService _firestoreService = locator<FirestoreService>();
-
+  //HACK
+  //final AuthenticationService _authService = locator<AuthenticationService>();
+  //final FirestoreService _firestoreService = locator<FirestoreService>();
+  //END HACK
   UserModel user = UserModel.defaultUser;
 
   @override
   void initState() {
     super.initState();
-    _firestoreService.getLoggedInUser().then(
-      (userModel) {
-        if (!mounted) return;
-        setState(() {
-          if (userModel != null) user = userModel;
-        });
-      },
-    );
+    //HACK
+
+    // _firestoreService.getLoggedInUser().then(
+    //   (userModel) {
+    //     if (!mounted) return;
+    //     setState(() {
+    //       if (userModel != null) user = userModel;
+    //     });
+    //   },
+    // );
+    //END HACK
   }
 
   @override
@@ -56,7 +61,11 @@ class _HomePageState extends State<HomePage> {
           IconButton(
               icon: Icon(Icons.logout),
               onPressed: () {
-                _authService.logOut();
+                print("User logged out");
+                //HACK
+                //_authService.logOut();
+                //END HACK
+          
               })
         ],
       ),

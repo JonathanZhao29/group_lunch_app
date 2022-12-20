@@ -48,8 +48,8 @@ class AuthNotifier extends BaseNotifier {
             'signup - verificationId: $verificationId | resendToken: $resendToken | phoneNumber: $phoneNumber');
 
         await fetchPrefs();
-
-        setBusy(false);
+        //HACK
+        //setBusy(false);
         setAuthMode(AuthMode.verificationMode);
       },
     );
